@@ -87,44 +87,98 @@ def decision_color(row):
         else:
             counts_arr.append([idx,c,0])
             idx += 1
-    counts_arr[0][2] += 5
-    counts_arr[-1][2] += 10
+    counts_arr[0][2] -= 10
+    #counts_arr[-1][2] += 5
     #if( len(counts_arr) > 10):
     #    sort_arr = sort_arr[:10]
     #sort_arr = sorted(counts_arr, key = lambda x : x[2], reverse = True)
     #sort_arr = sort_arr[:10]
     #top_n = sorted(sort_arr, key = lambda x : x[0] )
     extract_color = []
-    for c in counts_arr :
-        num = 0
-        dif = 0
-        clr = c[1]
-        if(c[1] == 1):
-            clr = 0
-        elif(c[1] == 6):
-            clr = 1
-            dif = 10
-        if( c[2] > 415):
-            num = 8
-        elif( c[2] > 355):
-            num = 7
-        elif( c[2] > 295):
-            num = 6
-        elif( c[2] > 240):
-            num = 5
-        elif( c[2] > 190 + dif):
-            num = 4
-        elif( c[2] > 135 + dif / 2):
-            num = 3
-        elif( c[2] > 75):
-            num = 2
-        elif( c[2] > 20):
-            num = 1
-        for i in range(num):
-            extract_color.append(clr)
-    #print(extract_color)
-    #if(len(extract_color) != 10):
-    #print("some thing wrong : ",counts_arr)
+    diff_small_value = []
+    diff_big_value = []
+    corrected_idx = []
+    print(counts_arr)
+    for i in range(2):
+        #extract_color = []
+        #diff_small_value = []
+        if( i == 1):
+            if(len(extract_color) == 10):
+                break
+            elif(len(extract_color) < 10):
+                counts_arr[ corrected_idx [ diff_small_value.index(min(diff_small_value))] ][2] += (min(diff_small_value) + 2)
+                print(diff_small_value)
+            else:
+                counts_arr[ corrected_idx [ diff_big_value.index(min(diff_big_value)) ]][2] -= (min(diff_big_value) +2)
+                print(diff_big_value)
+            print("fix .. original : ", extract_color)
+            print(counts_arr)
+            extract_color = []
+            diff_small_value = []
+            diff_big_value = []
+            corrected_idx = []
+        for c in range(len(counts_arr)) :
+            num = 0
+            dif = 0
+            clr = -1
+            if(counts_arr[c][1] == 1):
+                clr = 0
+                dif = -5
+            elif(counts_arr[c][1] == 6):
+                clr = 1
+                dif = 5
+            elif(counts_arr[c][1] == 3 or counts_arr[c][1] == 5):
+                clr = counts_arr[c][1]
+            else:
+                continue
+            if( counts_arr[c][2] > 530):
+                num = 10
+                diff_small_value.append(100)
+                diff_big_value.append(counts_arr[c][2] - 530)
+            elif(counts_arr[c][2] > 460):
+                num = 9
+                diff_small_value.append(530 - counts_arr[c][2])
+                diff_big_value.append(counts_arr[c][2] - 460)
+            elif( counts_arr[c][2] > 390):
+                num = 8
+                diff_small_value.append(460 - counts_arr[c][2])
+                diff_big_value.append(counts_arr[c][2] - 390)
+            elif( counts_arr[c][2] > 340):
+                num = 7
+                diff_small_value.append(390 - counts_arr[c][2])
+                diff_big_value.append(counts_arr[c][2] - 340)
+            elif( counts_arr[c][2] > 280):
+                num = 6
+                diff_small_value.append(340 - counts_arr[c][2])
+                diff_big_value.append(counts_arr[c][2] - 280)
+            elif( counts_arr[c][2] > 220):
+                num = 5
+                diff_small_value.append(280 - counts_arr[c][2])
+                diff_big_value.append(counts_arr[c][2] - 220)
+            elif( counts_arr[c][2] > 180 + dif):
+                num = 4
+                diff_small_value.append(220 - counts_arr[c][2])
+                diff_big_value.append(counts_arr[c][2] + dif - 180)
+            elif( counts_arr[c][2] > 120 + dif):
+                num = 3
+                diff_small_value.append(180 + dif - counts_arr[c][2])
+                diff_big_value.append(counts_arr[c][2] - dif - 120 )
+            elif( counts_arr[c][2] > 70 + dif):
+                num = 2
+                diff_small_value.append(120 +dif - counts_arr[c][2])
+                diff_big_value.append(counts_arr[c][2] - dif - 70)
+            elif( counts_arr[c][2] > 15):
+                num = 1
+                diff_small_value.append(70 + dif - counts_arr[c][2])
+                diff_big_value.append(counts_arr[c][2] - 15)
+            else:
+                continue
+            corrected_idx.append(c)
+            for i in range(num):
+                extract_color.append(clr)
+    #print(counts_arr)
+    #if(len(extract_color) < 10):
+    #   print("some thing wrong : ",counts_arr)
     return extract_color
 
 
@@ -132,8 +186,9 @@ ev3.Sound.beep()
 
 rightmotor = ev3.LargeMotor('outA')
 leftmotor = ev3.LargeMotor('outD')
-colormotor = ev3.MediumMotor('outB')
-
+#colormotor = ev3.MediumMotor('outB')
+colormotor = ev3.LargeMotor('outB')
+cs_sp = 40
 sp = 50
 flag = 300
 visit_green = False
@@ -156,8 +211,8 @@ while(True):
                 color_sp = -45
                 colormotor.stop()
                 if(not Start):
-                    rightmotor.run_to_rel_pos(position_sp = 62, speed_sp = sp)
-                    leftmotor.run_to_rel_pos(position_sp = 62, speed_sp = sp)
+                    rightmotor.run_to_rel_pos(position_sp = 63, speed_sp = sp)
+                    leftmotor.run_to_rel_pos(position_sp = 63, speed_sp = sp)
                     r = decision_color(row_colors[:])
                     r.reverse()
                     print(r)
@@ -169,14 +224,14 @@ while(True):
                 rightmotor.stop()
                 leftmotor.stop()
             else:
-                colormotor.run_to_rel_pos(position_sp = color_sp, speed_sp = 50)
+                colormotor.run_to_rel_pos(position_sp = color_sp, speed_sp = cs_sp)
         else:
             if(right_touch_ss.is_pressed == 1):
                 color_sp = 45
                 colormotor.stop()
                 if(not Start):
-                    rightmotor.run_to_rel_pos(position_sp = 62, speed_sp = sp)
-                    leftmotor.run_to_rel_pos(position_sp = 62, speed_sp = sp)
+                    rightmotor.run_to_rel_pos(position_sp = 63, speed_sp = sp)
+                    leftmotor.run_to_rel_pos(position_sp = 63, speed_sp = sp)
                     r = decision_color(row_colors[:])
                     print(r)
                     color_map.append(r)
@@ -187,11 +242,12 @@ while(True):
                 rightmotor.stop()
                 leftmotor.stop()
             else:
-                colormotor.run_to_rel_pos(position_sp = color_sp, speed_sp = 50)
+                colormotor.run_to_rel_pos(position_sp = color_sp, speed_sp = cs_sp)
         row_colors.append(cs.color)
         #rightmotor.run_to_rel_pos(position_sp = 1080, speed_sp = sp)
         #leftmotor.run_to_rel_pos(position_sp = 1080, speed_sp = sp)
-    except :
+    except:
+        #print(e)
         rightmotor.stop()
         leftmotor.stop()
         colormotor.stop()
@@ -199,22 +255,19 @@ while(True):
 ev3.Sound.beep()
 
 
-
+mv_sp = 45
 
 #for i in range(10):
-for j in range(10):
-    # i : x, j : y
-    if(color_map[0][j] == 3 ) :
-        strt_x = 0
-        strt_y = j
-        color_map[0][j] = 1
-        break
-for j in range(10):
-    if(color_map[9][j] == 5):
-        dst_x = 9
-        dst_y = j
-        color_map[9][j] = 1
-        break
+for i in range(M):
+    for j in range(N):
+        if(color_map[i][j] == 5):
+            dst_x = i
+            dst_y = j
+            color_map[i][j] = 1
+        elif(color_map[i][j] == 3):
+            strt_x = i
+            strt_y = j
+            color_map[i][j] = 1
 
 check = weight(color_map)
 OrderList = MakeOrder(check)
@@ -226,27 +279,31 @@ for i in range(N):
 
 print("Order list")
 print(OrderList)
-
-time.sleep(5)
+leftmotor.run_to_rel_pos(position_sp = -640, speed_sp = sp)
+rightmotor.run_to_rel_pos(position_sp = -640, speed_sp = sp)
+time.sleep(18)
+rightmotor.stop()
+leftmotor.stop()
 ev3.Sound.beep()
 
 cur = (0,0)
 for tmp in OrderList:
     term = 0
+    print("current idx : ",cur)
     if(cur[1] - tmp[1] != 0):
         if(cur[1] > tmp[1]):
             term = cur[1] - tmp[1] # left
             for i in range(term):
-                colormotor.run_to_rel_pos(position_sp = 48 , speed_sp = 45 )
+                colormotor.run_to_rel_pos(position_sp = 56 , speed_sp = mv_sp )
                 time.sleep(3)
                 colormotor.stop()
         else:
             term = tmp[1] - cur[1]
             for i in range(term):
-                colormotor.run_to_rel_pos(position_sp = -48, speed_sp = 45 )
+                colormotor.run_to_rel_pos(position_sp = -56, speed_sp = mv_sp )
                 time.sleep(3)
                 colormotor.stop()
-    else:
+    if(cur[0] - tmp[0] != 0):
         if(cur[0] > tmp[0]):
             term = cur[0] - tmp[0]
             for i in range(term):
